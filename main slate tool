@@ -1,0 +1,47 @@
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://www.numberfire.com/mlb/daily-fantasy/daily-baseball-projections/batters"
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+player_names = [
+    "Will Smith",
+    "Anthony Rizzo",
+    "Jose Altuve",
+    "Christopher Morel",
+    "Dansby Swanson",
+    "Adolis Garcia",
+    "Ian Happ",
+    "Michael Harris II",
+    "Jorge Soler",
+    "Fernando Tatis Jr.",
+    "Jake Fraley",
+    "Christian Walker",
+    "Andres Gimenez",
+    "Matt Chapman",
+    "Justin Turner",
+    "Tommy Edman",
+    "Luis Matos",
+    "Jake McCarthy"
+]
+
+players = []
+
+player_elements = soup.find_all('tr', class_='')
+
+for element in player_elements:
+    name_element = element.find(class_='full')
+    position_element = element.find(class_='player-info--position')
+    fantasy_points_element = element.find(class_='fp active')
+
+    if name_element and name_element.text.strip() in player_names:
+        name = name_element.text.strip()
+        position = position_element.text.strip() if position_element else ''
+        fantasy_points = float(fantasy_points_element.text.strip()) if fantasy_points_element else 0.0
+        players.append({"name": name, "position": position, "fp": fantasy_points})
+
+sorted_players = sorted(players, key=lambda x: x["fp"], reverse=True)
+
+for player in sorted_players:
+    print(f"Player: {player['name']}, Position: {player['position']}, Fantasy Points: {player['fp']}")
